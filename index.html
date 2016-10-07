@@ -85,7 +85,6 @@ const goForward = () => {
 
 const onKeyDown = (e) => {
   const { keyCode } = e
-  console.log(keyCode)
   // don't intercept keyboard chords
   if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return
 
@@ -99,6 +98,14 @@ const onKeyDown = (e) => {
     e.preventDefault()
     goForward()
   }
+}
+
+// edit mode
+
+const onDoubleClick = (e) => {
+  e.preventDefault()
+  if (e.target.tagName !== 'DIAPO') return
+  e.target.setAttribute('contenteditable', 'true')
 }
 
 // scale
@@ -118,6 +125,7 @@ const init = () => {
   goTo(1)
 
   window.onkeydown = onKeyDown
+  window.ondblclick = onDoubleClick
   window.onresize = onResize
 }
 
