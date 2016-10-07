@@ -54,6 +54,16 @@ diapo {
 diapo { left: -150% } /* Before */
 diapo[aria-selected] { left: 0 } /* Now */
 diapo[aria-selected] ~ section { left: +150% } /* After */
+nav {
+  background: #ccc;
+  bottom: 0; width: 100%;
+  display: flex;
+  position: absolute;
+}
+nav button {
+  width: 50%;
+}
+
 </style>
 
 <script>
@@ -62,6 +72,43 @@ diapo[aria-selected] ~ section { left: +150% } /* After */
 const state = {
   index: 0,
   diapos: []
+}
+
+// ui
+
+const injectDiapo = (position) => {
+  const diapo = E('diapo', { innerHTML: '<h1>New title</h1>' })
+  const current = $('diapo[aria-selected]')
+  if (position === 'before') {
+    document.body.insertBefore(diapo, current)
+    state.index++
+  } else {
+    document.body.insertBefore(diapo, current.nextSibling)
+  }
+  state.diapos = [...$$('diapo')]
+  goTo(position === 'before' ? state.index - 1 : state.index + 1)
+}
+
+const createButtons = () => {
+  const addBefore = E('button', {
+    textContent: 'Create a new diapo before',
+    onclick: () => injectDiapo('before')
+  })
+  const addAfter = E('button', {
+    textContent: 'Create a new diapo after',
+    onclick: () => injectDiapo('after')
+  })
+  return [addBefore, addAfter]
+}
+
+const createUI = () => {
+  let ui = $('nav.ui')
+  if (ui) ui.remove()
+
+  ui = E('nav', { className: 'ui' })
+
+  createButtons().forEach(b => ui.appendChild(b))
+  return document.body.append(ui)
 }
 
 // navigation
@@ -122,6 +169,7 @@ const onResize = () => {
 const init = () => {
   state.diapos = [...$$('diapo')]
   onResize()
+  createUI()
   goTo(1)
 
   window.onkeydown = onKeyDown
@@ -136,6 +184,16 @@ window.onload = init
 
 <script>
 // global helpers
+
+function E (tag, props) {
+  var elt = document.createElement(tag)
+  if (props) {
+    for (var p in props) {
+      elt[p] = props[p]
+    }
+  }
+  return elt
+}
 
 var $ = (HTMLElement.prototype.$ = function(q) {
   return this.querySelector(q);
