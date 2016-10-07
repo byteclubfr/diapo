@@ -51,9 +51,9 @@ diapo {
   padding: 10px;
   transition: left 300ms ease-in 0s;
 }
-diapo { left: -150% } /* Before */
+diapo { left: -100% } /* Before */
 diapo[aria-selected] { left: 0 } /* Now */
-diapo[aria-selected] ~ section { left: +150% } /* After */
+diapo[aria-selected] ~ diapo { left: +100% } /* After */
 nav {
   background: #ccc;
   bottom: 0; width: 100%;
