@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<title>Diapo</title>
+
+<diapo>
+  <h1>First diapo</h1>
+  <p>A small text content on 1 line.</p>
+</diapo>
+
+<diapo>
+  <h1>Second diapo</h1>
+  <p>A list of things:</p>
+  <ul>
+    <li>first thing</li>
+    <li>second thing</li>
+  </ul>
+</diapo>
+
+<diapo>
+  <h1>Third diapo</h1>
+</diapo>
+
+
+<!-- diapo engine: here be dragons -->
+
+<style>
+* {
+  box-sizing: border-box;
+}
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+html {
+  background: #fff;
+}
+body {
+  background: #eee;
+  width: 800px; height: 600px;
+  margin-left: -400px; margin-top: -300px;
+  position: absolute; top: 50%; left: 50%;
+  font-family: Arial, Helvetica, sans-serif;
+}
+diapo {
+  background: #ddd;
+  width: 100%; height: 100%;
+  display: block;
+  position: absolute;
+  padding: 10px;
+  transition: left 300ms ease-in 0s;
+}
+diapo { left: -150% } /* Before */
+diapo[aria-selected] { left: 0 } /* Now */
+diapo[aria-selected] ~ section { left: +150% } /* After */
+</style>
+
+<script>
+(function () {
+
+const state = {
+  index: 0,
+  diapos: []
+}
+
+// navigation
+
+const goTo = (index) => {
+  state.index = index
+  const current = $('diapo[aria-selected]')
+  const next = $(`diapo:nth-of-type(${ index })`)
+  if (current) current.removeAttribute('aria-selected')
+  if (next) next.setAttribute('aria-selected', 'true')
+}
+
+const goBack = () => {
+  if (state.index > 1) goTo(state.index - 1)
+}
+
+const goForward = () => {
+  if (state.index !== state.diapos.length)
+    goTo(state.index + 1)
+}
+
+const onKeyDown = (e) => {
+  const { keyCode } = e
+  console.log(keyCode)
+  // don't intercept keyboard chords
+  if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return
+
+  // left, up, page up
+  if ([37, 38, 33].includes(keyCode)) {
+    e.preventDefault()
+    goBack()
+  }
+  // right, down, page down
+  if ([39, 40, 34].includes(keyCode)) {
+    e.preventDefault()
+    goForward()
+  }
+}
+
+// scale
+
+const onResize = () => {
+  const b = document.body
+  const w = b.clientWidth / window.innerWidth
+  const h = b.clientHeight / window.innerHeight
+  b.style.transform = `scale(${ 1 / Math.max(w, h) })`
+}
+
+// let's roll
+
+const init = () => {
+  state.diapos = [...$$('diapo')]
+  onResize()
+  goTo(1)
+
+  window.onkeydown = onKeyDown
+  window.onresize = onResize
+}
+
+window.onload = init
+
+})()
+</script>
+
+<script>
+// global helpers
+
+var $ = (HTMLElement.prototype.$ = function(q) {
+  return this.querySelector(q);
+}).bind(document)
+
+var $$ = (HTMLElement.prototype.$$ = function(q) {
+  return this.querySelectorAll(q);
+}).bind(document)
+</script>
