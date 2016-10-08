@@ -74,11 +74,14 @@ const state = {
   diapos: []
 }
 
-// ui
+// CRUD
+
+// current
+const getDiapo = () => $('diapo[aria-selected]')
 
 const injectDiapo = (position) => {
   const diapo = E('diapo', { innerHTML: '<h1>New title</h1>' })
-  const current = $('diapo[aria-selected]')
+  const current = getDiapo()
   if (position === 'before') {
     document.body.insertBefore(diapo, current)
     state.index++
@@ -90,11 +93,13 @@ const injectDiapo = (position) => {
 }
 
 const deleteDiapo = () => {
-  $('diapo[aria-selected]').remove()
+  getDiapo().remove()
   if (state.index === state.diapos.length) state.index--
   state.diapos = [...$$('diapo')]
   goTo(state.index)
 }
+
+// ui
 
 const createButtons = () => {
   const addBefore = E('button', {
@@ -107,11 +112,17 @@ const createButtons = () => {
       if (confirm('Are you sure you want to delete this diapo?')) deleteDiapo()
     }
   })
+  const edit = E('button', {
+    textContent: 'Edit diapo',
+    onclick: () => {
+      getDiapo().setAttribute('contenteditable', 'true')
+    }
+  })
   const addAfter = E('button', {
     textContent: 'Create a new diapo after',
     onclick: () => injectDiapo('after')
   })
-  return [addBefore, remove, addAfter]
+  return [addBefore, remove, edit, addAfter]
 }
 
 const createUI = () => {
@@ -128,7 +139,7 @@ const createUI = () => {
 
 const goTo = (index) => {
   state.index = index
-  const current = $('diapo[aria-selected]')
+  const current = getDiapo()
   const next = $(`diapo:nth-of-type(${ index })`)
   if (current) current.removeAttribute('aria-selected')
   if (next) next.setAttribute('aria-selected', 'true')
