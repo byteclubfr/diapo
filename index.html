@@ -103,7 +103,9 @@ const createButtons = () => {
   })
   const remove = E('button', {
     textContent: 'Delete diapo',
-    onclick: () => deleteDiapo()
+    onclick: () => {
+      if (confirm('Are you sure you want to delete this diapo?')) deleteDiapo()
+    }
   })
   const addAfter = E('button', {
     textContent: 'Create a new diapo after',
