@@ -47,6 +47,10 @@ body {
   margin-left: -400px; margin-top: -300px;
   position: absolute; top: 50%; left: 50%;
   font-family: Arial, Helvetica, sans-serif;
+  display: none;
+}
+body.loaded {
+  display: block;
 }
 diapo {
   background: #ddd;
@@ -204,12 +208,13 @@ const onResize = () => {
 // let's roll
 
 const init = () => {
+  goTo(1)
+  document.body.className = 'loaded'
   state.diapos = [...$$('diapo')]
   state.dummyHTML = $('template').innerHTML
 
   onResize()
   createUI()
-  goTo(1)
 
   window.onkeydown = onKeyDown
   window.ondblclick = onDoubleClick
