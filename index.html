@@ -89,16 +89,27 @@ const injectDiapo = (position) => {
   goTo(position === 'before' ? state.index - 1 : state.index + 1)
 }
 
+const deleteDiapo = () => {
+  $('diapo[aria-selected]').remove()
+  if (state.index === state.diapos.length) state.index--
+  state.diapos = [...$$('diapo')]
+  goTo(state.index)
+}
+
 const createButtons = () => {
   const addBefore = E('button', {
     textContent: 'Create a new diapo before',
     onclick: () => injectDiapo('before')
   })
+  const remove = E('button', {
+    textContent: 'Delete diapo',
+    onclick: () => deleteDiapo()
+  })
   const addAfter = E('button', {
     textContent: 'Create a new diapo after',
     onclick: () => injectDiapo('after')
   })
-  return [addBefore, addAfter]
+  return [addBefore, remove, addAfter]
 }
 
 const createUI = () => {
