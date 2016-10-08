@@ -102,6 +102,10 @@ const deleteDiapo = () => {
 // ui
 
 const createButtons = () => {
+  const back = E('button', {
+    textContent: '◀',
+    onclick: () => goBack()
+  })
   const addBefore = E('button', {
     textContent: 'Create a new diapo before',
     onclick: () => injectDiapo('before')
@@ -122,7 +126,11 @@ const createButtons = () => {
     textContent: 'Create a new diapo after',
     onclick: () => injectDiapo('after')
   })
-  return [addBefore, remove, edit, addAfter]
+  const forward = E('button', {
+    textContent: '▶',
+    onclick: () => goForward()
+  })
+  return [back, addBefore, remove, edit, addAfter, forward]
 }
 
 const createUI = () => {
