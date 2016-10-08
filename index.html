@@ -21,6 +21,11 @@
   <h1>Third diapo</h1>
 </diapo>
 
+<template>
+  <h1>New diapo title</h1>
+  <p>A dummy paragraph</p>
+</template>
+
 
 <!-- diapo engine: here be dragons -->
 
@@ -80,7 +85,7 @@ const state = {
 const getDiapo = () => $('diapo[aria-selected]')
 
 const injectDiapo = (position) => {
-  const diapo = E('diapo', { innerHTML: '<h1>New title</h1>' })
+  const diapo = E('diapo', { innerHTML: state.dummyHTML })
   const current = getDiapo()
   if (position === 'before') {
     document.body.insertBefore(diapo, current)
@@ -200,6 +205,8 @@ const onResize = () => {
 
 const init = () => {
   state.diapos = [...$$('diapo')]
+  state.dummyHTML = $('template').innerHTML
+
   onResize()
   createUI()
   goTo(1)
