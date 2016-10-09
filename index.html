@@ -105,7 +105,12 @@ nav {
   position: absolute;
 }
 nav button {
-  width: 50%;
+  flex: 1;
+}
+nav .counter {
+  align-self: center;
+  padding: 1em;
+  white-space: nowrap;
 }
 
 </style>
@@ -145,14 +150,16 @@ const deleteDiapo = () => {
 
 // ui
 
-const createButtons = () => {
+const createButtons = (state) => {
   const start = E('button', {
     textContent: '◀◀',
-    onclick: () => goStart()
+    onclick: () => goStart(),
+    disabled: state.index === 1
   })
   const back = E('button', {
     textContent: '◀',
-    onclick: () => goBack()
+    onclick: () => goBack(),
+    disabled: state.index === 1
   })
   const addBefore = E('button', {
     textContent: 'Create a new diapo before',
@@ -163,6 +170,10 @@ const createButtons = () => {
     onclick: () => {
       if (confirm('Are you sure you want to delete this diapo?')) deleteDiapo()
     }
+  })
+  const counter = E('div', {
+    className: 'counter',
+    textContent: `${state.index} / ${state.diapos.length}`
   })
   const edit = E('button', {
     textContent: 'Edit diapo',
@@ -176,22 +187,24 @@ const createButtons = () => {
   })
   const forward = E('button', {
     textContent: '▶',
-    onclick: () => goForward()
+    onclick: () => goForward(),
+    disabled: state.index === state.diapos.length
   })
   const end = E('button', {
     textContent: '▶▶',
-    onclick: () => goEnd()
+    onclick: () => goEnd(),
+    disabled: state.index === state.diapos.length
   })
-  return [start, back, addBefore, remove, edit, addAfter, forward, end]
+  return [start, back, addBefore, remove, counter, edit, addAfter, forward, end]
 }
 
-const createUI = () => {
+const refreshUI = (state) => {
   let ui = $('nav.ui')
   if (ui) ui.remove()
 
   ui = E('nav', { className: 'ui' })
 
-  createButtons().forEach(b => ui.appendChild(b))
+  createButtons(state).forEach(b => ui.appendChild(b))
   return document.body.append(ui)
 }
 
@@ -206,6 +219,7 @@ const goTo = (index) => {
     current.removeAttribute('contenteditable')
   }
   if (next) next.setAttribute('aria-selected', 'true')
+  refreshUI(state)
 }
 
 const goBack = () => {
@@ -276,7 +290,7 @@ const init = () => {
   state.dummyHTML = $('template').innerHTML
 
   onResize()
-  createUI()
+  refreshUI(state)
 
   window.onkeydown = onKeyDown
   window.ondblclick = onDoubleClick
