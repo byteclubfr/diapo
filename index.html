@@ -87,6 +87,7 @@ diapo {
 diapo { left: -100% } /* Before */
 diapo[aria-selected] { left: 0 } /* Now */
 diapo[aria-selected] ~ diapo { left: +100% } /* After */
+diapo[contenteditable] { background: #ccc; }
 
 diapo.center-x {
   display: flex;
@@ -200,7 +201,10 @@ const goTo = (index) => {
   state.index = index
   const current = getDiapo()
   const next = $(`diapo:nth-of-type(${ index })`)
-  if (current) current.removeAttribute('aria-selected')
+  if (current) {
+    current.removeAttribute('aria-selected')
+    current.removeAttribute('contenteditable')
+  }
   if (next) next.setAttribute('aria-selected', 'true')
 }
 
