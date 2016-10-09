@@ -173,12 +173,11 @@ const goTo = (index) => {
 }
 
 const goBack = () => {
-  if (state.index > 1) goTo(state.index - 1)
+  if (state.index > 1) setHash(state.index - 1)
 }
 
 const goForward = () => {
-  if (state.index !== state.diapos.length)
-    goTo(state.index + 1)
+  if (state.index !== state.diapos.length) setHash(state.index + 1)
 }
 
 const onKeyDown = (e) => {
@@ -196,6 +195,15 @@ const onKeyDown = (e) => {
     e.preventDefault()
     goForward()
   }
+}
+
+const onHashChange = () => {
+  const index = Number(window.location.hash.split('#')[1]) || 1
+  if (index !== state.index) goTo(index)
+}
+
+const setHash = (index) => {
+  window.location.hash = `#${index}`
 }
 
 // edit mode
@@ -218,7 +226,7 @@ const onResize = () => {
 // let's roll
 
 const init = () => {
-  goTo(1)
+  onHashChange()
   document.body.className = 'loaded'
   state.diapos = [...$$('diapo')]
   state.dummyHTML = $('template').innerHTML
@@ -229,6 +237,7 @@ const init = () => {
   window.onkeydown = onKeyDown
   window.ondblclick = onDoubleClick
   window.onresize = onResize
+  window.onhashchange = onHashChange
 }
 
 window.onload = init
