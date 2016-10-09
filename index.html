@@ -65,12 +65,12 @@ diapo[aria-selected] { left: 0 } /* Now */
 diapo[aria-selected] ~ diapo { left: +100% } /* After */
 
 diapo.center-x {
-	display: flex;
-	justify-content: center;
+  display: flex;
+  justify-content: center;
 }
 diapo.center-y {
-	display: flex;
-	align-items: center;
+  display: flex;
+  align-items: center;
 }
 
 nav {
@@ -121,6 +121,10 @@ const deleteDiapo = () => {
 // ui
 
 const createButtons = () => {
+  const start = E('button', {
+    textContent: '◀◀',
+    onclick: () => goStart()
+  })
   const back = E('button', {
     textContent: '◀',
     onclick: () => goBack()
@@ -149,7 +153,11 @@ const createButtons = () => {
     textContent: '▶',
     onclick: () => goForward()
   })
-  return [back, addBefore, remove, edit, addAfter, forward]
+  const end = E('button', {
+    textContent: '▶▶',
+    onclick: () => goEnd()
+  })
+  return [start, back, addBefore, remove, edit, addAfter, forward, end]
 }
 
 const createUI = () => {
@@ -178,6 +186,14 @@ const goBack = () => {
 
 const goForward = () => {
   if (state.index !== state.diapos.length) setHash(state.index + 1)
+}
+
+const goStart = () => {
+  setHash(1)
+}
+
+const goEnd = () => {
+  setHash(state.diapos.length)
 }
 
 const onKeyDown = (e) => {
