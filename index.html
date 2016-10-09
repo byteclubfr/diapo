@@ -131,7 +131,7 @@ nav .counter {
 
 const state = {
   index: 0,
-  diapos: []
+  total: 0
 }
 
 // CRUD
@@ -148,22 +148,34 @@ const injectDiapo = (position) => {
   } else {
     document.body.insertBefore(diapo, current.nextSibling)
   }
-  state.diapos = [...$$('diapo')]
+  state.total++
   setHash(position === 'before' ? state.index - 1 : state.index + 1)
 }
 
 const deleteDiapo = () => {
   getDiapo().remove()
-  if (state.index === state.diapos.length) state.index--
-  state.diapos = [...$$('diapo')]
+  if (state.index === state.total) state.index--
+  state.total--
   goTo(state.index)
+}
+
+const moveDiapo = (position) => {
+  const diapos = $$('diapo')
+  const current = diapos[state.index - 1]
+  if (position === 'before') {
+    current.parentNode.insertBefore(current, diapos[state.index - 2])
+    setHash(state.index - 1)
+  } else {
+    current.parentNode.insertBefore(diapos[state.index], current)
+    setHash(state.index + 1)
+  }
 }
 
 // ui
 
 const createButtons = (state) => {
   const start = E('button', {
-    textContent: '◀◀',
+    textContent: '|◀◀',
     onclick: () => goStart(),
     disabled: state.index === 1
   })
@@ -172,8 +184,13 @@ const createButtons = (state) => {
     onclick: () => goBack(),
     disabled: state.index === 1
   })
+  const moveBefore = E('button', {
+    textContent: 'Move diapo before',
+    onclick: () => moveDiapo('before'),
+    disabled: state.index === 1
+  })
   const addBefore = E('button', {
-    textContent: 'Create a new diapo before',
+    textContent: 'Create new diapo before',
     onclick: () => injectDiapo('before')
   })
   const remove = E('button', {
@@ -184,7 +201,7 @@ const createButtons = (state) => {
   })
   const counter = E('div', {
     className: 'counter',
-    textContent: `${state.index} / ${state.diapos.length}`
+    textContent: `${state.index} / ${state.total}`
   })
   const edit = E('button', {
     textContent: 'Edit diapo',
@@ -193,20 +210,27 @@ const createButtons = (state) => {
     }
   })
   const addAfter = E('button', {
-    textContent: 'Create a new diapo after',
+    textContent: 'Create new diapo after',
     onclick: () => injectDiapo('after')
+  })
+  const moveAfter = E('button', {
+    textContent: 'Move diapo after',
+    onclick: () => moveDiapo('after'),
+    disabled: state.index === state.total
   })
   const forward = E('button', {
     textContent: '▶',
     onclick: () => goForward(),
-    disabled: state.index === state.diapos.length
+    disabled: state.index === state.total
   })
   const end = E('button', {
-    textContent: '▶▶',
+    textContent: '▶▶|',
     onclick: () => goEnd(),
-    disabled: state.index === state.diapos.length
+    disabled: state.index === state.total
   })
-  return [start, back, addBefore, remove, counter, edit, addAfter, forward, end]
+  return [start, back, moveBefore, addBefore,
+    remove, counter, edit,
+    addAfter, moveAfter, forward, end]
 }
 
 const refreshUI = (state) => {
@@ -238,7 +262,7 @@ const goBack = () => {
 }
 
 const goForward = () => {
-  if (state.index !== state.diapos.length) setHash(state.index + 1)
+  if (state.index !== state.total) setHash(state.index + 1)
 }
 
 const goStart = () => {
@@ -246,7 +270,7 @@ const goStart = () => {
 }
 
 const goEnd = () => {
-  setHash(state.diapos.length)
+  setHash(state.total)
 }
 
 const onKeyDown = (e) => {
@@ -297,7 +321,7 @@ const onResize = () => {
 const init = () => {
   onHashChange()
   document.body.className = 'loaded'
-  state.diapos = [...$$('diapo')]
+  state.total = $$('diapo').length
   state.dummyHTML = $('template').innerHTML
 
   onResize()
