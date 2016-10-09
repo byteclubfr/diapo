@@ -17,8 +17,8 @@
   </ul>
 </diapo>
 
-<diapo>
-  <h1>Third diapo</h1>
+<diapo class="center-x center-y">
+  <h1>Third diapo centered title</h1>
 </diapo>
 
 <template>
@@ -63,6 +63,16 @@ diapo {
 diapo { left: -100% } /* Before */
 diapo[aria-selected] { left: 0 } /* Now */
 diapo[aria-selected] ~ diapo { left: +100% } /* After */
+
+diapo.center-x {
+	display: flex;
+	justify-content: center;
+}
+diapo.center-y {
+	display: flex;
+	align-items: center;
+}
+
 nav {
   background: #ccc;
   bottom: 0; width: 100%;
