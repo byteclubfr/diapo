@@ -133,7 +133,7 @@ const injectDiapo = (position) => {
     document.body.insertBefore(diapo, current.nextSibling)
   }
   state.diapos = [...$$('diapo')]
-  goTo(position === 'before' ? state.index - 1 : state.index + 1)
+  setHash(position === 'before' ? state.index - 1 : state.index + 1)
 }
 
 const deleteDiapo = () => {
