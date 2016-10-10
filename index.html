@@ -109,11 +109,23 @@ diapo.center-y {
   align-items: center;
 }
 
+diapo img {
+  max-width: 100%;
+}
+
 textarea.edit {
   width: 100%; height: 80%;
   display: block;
   padding: 10px;
   position: absolute;
+}
+
+form.file {
+  position: absolute;
+  top: 40%;
+  left: 30%;
+  padding: 2em;
+  background: #ccc;
 }
 
 nav {
@@ -200,6 +212,33 @@ const saveDiapo = () => {
 
 // ui
 
+const displayImageInput = () => {
+  const form = E('form', {
+    className: 'file',
+    onsubmit: (e) => e.prevenDefault()
+  })
+
+  const input = E('input', {
+    type: 'file',
+    name: 'file',
+    onchange: function () {
+      const file = this.files[0]
+      if (!file.type.match(/image.*/)) return
+
+      const img = E("img")
+      getDiapo().appendChild(img)
+
+      const reader = new FileReader()
+      reader.onload = (e) => img.src = e.target.result
+      reader.readAsDataURL(file)
+
+      form.remove()
+    }
+  })
+  form.appendChild(input)
+  document.body.appendChild(form)
+}
+
 const createButtons = (state) => {
   const start = E('button', {
     textContent: '|◀◀',
@@ -224,6 +263,12 @@ const createButtons = (state) => {
     textContent: 'Delete diapo',
     onclick: () => {
       if (confirm('Are you sure you want to delete this diapo?')) deleteDiapo()
+    }
+  })
+  const image = E('button', {
+    textContent: 'Add image',
+    onclick: () => {
+      displayImageInput()
     }
   })
   const counter = E('div', {
@@ -262,7 +307,7 @@ const createButtons = (state) => {
     disabled: state.index === state.total
   })
   return [start, back, moveBefore, addBefore,
-    remove, counter, editInPlace, editHTML,
+    image, remove, counter, editInPlace, editHTML,
     addAfter, moveAfter, forward, end]
 }
 
