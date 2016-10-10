@@ -313,6 +313,7 @@ const onKeyDown = (e) => {
   const { keyCode } = e
   // don't intercept keyboard chords
   if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return
+  if (state.editMode) return
 
   // left, up, page up
   if ([37, 38, 33].includes(keyCode)) {
