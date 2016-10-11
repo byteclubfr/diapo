@@ -146,7 +146,7 @@ nav .counter {
 </style>
 
 <script>
-(function () {
+(function (body) {
 
 const state = {
   index: 0,
@@ -164,10 +164,10 @@ const injectDiapo = (position) => {
   const diapo = E('diapo', { innerHTML: state.dummyHTML })
   const current = getDiapo()
   if (position === 'before') {
-    document.body.insertBefore(diapo, current)
+    body.insertBefore(diapo, current)
     state.index++
   } else {
-    document.body.insertBefore(diapo, current.nextSibling)
+    body.insertBefore(diapo, current.nextSibling)
   }
   state.total++
   setHash(position === 'before' ? state.index - 1 : state.index + 1)
@@ -198,7 +198,7 @@ const editDiapo = () => {
     className: 'edit',
     innerHTML: getDiapo().innerHTML
   })
-  append(document.body, input)
+  append(body, input)
   state.editMode = true
   refreshUI()
 }
@@ -236,7 +236,7 @@ const displayImageInput = () => {
       form.remove()
     }
   })
-  append(document.body, append(form, input))
+  append(body, append(form, input))
 }
 
 const createButtons = () => {
@@ -315,7 +315,7 @@ const refreshUI = () => {
   if (ui) ui.remove() // re-rendering UI should be lightweight
   ui = E('nav', { className: 'ui' })
 
-  append(document.body, append(ui, ...createButtons()))
+  append(body, append(ui, ...createButtons()))
 }
 
 // navigation
@@ -389,17 +389,16 @@ const onDoubleClick = (e) => {
 // scale
 
 const onResize = () => {
-  const b = document.body
-  const w = b.clientWidth / window.innerWidth
-  const h = b.clientHeight / window.innerHeight
-  b.style.transform = `scale(${ 1 / Math.max(w, h) })`
+  const w = body.clientWidth / window.innerWidth
+  const h = body.clientHeight / window.innerHeight
+  body.style.transform = `scale(${ 1 / Math.max(w, h) })`
 }
 
 // let's roll
 
 const init = () => {
   onHashChange()
-  document.body.className = 'loaded'
+  body.className = 'loaded'
   state.total = $$('diapo').length
   state.dummyHTML = $('template').innerHTML
 
@@ -414,7 +413,7 @@ const init = () => {
 
 window.onload = init
 
-})()
+})(document.body)
 </script>
 
 <script>
