@@ -136,9 +136,12 @@ nav.ui {
   bottom: 0; width: 100%;
   position: absolute;
 }
+nav.collapsed {
+  justify-content: center;
+}
 nav nav {
   position: relative;
-  width: 48%;
+  width: 50%;
 }
 nav h2 {
   font-size: 12px;
@@ -163,6 +166,11 @@ nav button[disabled] {
   background: #ddd;
   cursor: default;
 }
+nav button.toggle {
+  background: none;
+  flex: 0;
+  min-height: 2em;
+}
 nav .counter {
   align-self: center;
   padding: .5em;
@@ -177,7 +185,8 @@ nav .counter {
 const state = {
   index: 0,
   total: 0,
-  editMode: false
+  editMode: false,
+  ui: true
 }
 let ui // created at runtime
 
@@ -353,9 +362,21 @@ const createDiaporamaBar = () =>
 
 const refreshUI = () => {
   if (ui) ui.remove() // re-rendering UI should be lightweight
-  ui = E('nav', { className: 'ui' })
+    ui = E('nav', { className: `ui ${!state.ui && 'collapsed'}` })
+  const toggle = E('button', {
+    className: 'toggle',
+    textContent: state.ui ? '▼' : '▲',
+    title: 'Toggle toolbar',
+    onclick: () => {
+      state.ui = !state.ui
+      refreshUI()
+    }
+  })
+  const children = state.ui
+    ? [createDiapoBar(), toggle, createDiaporamaBar()]
+    : [toggle]
 
-  append(body, append(ui, createDiapoBar(), createDiaporamaBar()))
+  append(body, append(ui, ...children))
 }
 
 // navigation
