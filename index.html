@@ -318,7 +318,7 @@ const refreshUI = (state) => {
   ui = E('nav', { className: 'ui' })
 
   createButtons(state).forEach(b => ui.appendChild(b))
-  return document.body.append(ui)
+  return document.body.appendChild(ui)
 }
 
 // navigation
