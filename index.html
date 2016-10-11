@@ -129,17 +129,31 @@ form.file {
 }
 
 nav {
-  background: #ccc;
-  bottom: 0; width: 100%;
+  justify-content: space-between;
   display: flex;
+}
+nav.ui {
+  bottom: 0; width: 100%;
   position: absolute;
+}
+nav nav {
+  position: relative;
+  width: 48%;
+}
+nav h2 {
+  font-size: 12px;
+  margin: 0;
+  position: absolute;
+  text-align: center;
+  top: -1.5em;
+  width: 100%;
 }
 nav button {
   flex: 1;
 }
 nav .counter {
   align-self: center;
-  padding: 1em;
+  padding: .5em;
   white-space: nowrap;
 }
 
@@ -239,83 +253,97 @@ const displayImageInput = () => {
   append(body, append(form, input))
 }
 
-const createButtons = () => {
-  const start = E('button', {
-    textContent: '|◀◀',
-    onclick: () => goStart(),
-    disabled: state.index === 1
-  })
-  const back = E('button', {
-    textContent: '◀',
-    onclick: () => goBack(),
-    disabled: state.index === 1
-  })
-  const moveBefore = E('button', {
-    textContent: 'Move diapo before',
-    onclick: () => moveDiapo('before'),
-    disabled: state.index === 1
-  })
-  const addBefore = E('button', {
-    textContent: 'Create new diapo before',
-    onclick: () => injectDiapo('before')
-  })
-  const remove = E('button', {
-    textContent: 'Delete diapo',
-    onclick: () => {
-      if (confirm('Are you sure you want to delete this diapo?')) deleteDiapo()
-    }
-  })
-  const image = E('button', {
-    textContent: 'Add image',
-    onclick: () => {
-      displayImageInput()
-    }
-  })
-  const counter = E('div', {
-    className: 'counter',
-    textContent: `${state.index} / ${state.total}`
-  })
-  const editInPlace = E('button', {
-    textContent: 'Edit diapo in place',
-    onclick: () => {
-      getDiapo().setAttribute('contenteditable', 'true')
-    }
-  })
-  const editHTML = E('button', {
-    textContent: !state.editMode ? 'Edit diapo as HTML' : 'Save HTML',
-    onclick: () => {
-      !state.editMode ? editDiapo() : saveDiapo()
-    }
-  })
-  const addAfter = E('button', {
-    textContent: 'Create new diapo after',
-    onclick: () => injectDiapo('after')
-  })
-  const moveAfter = E('button', {
-    textContent: 'Move diapo after',
-    onclick: () => moveDiapo('after'),
-    disabled: state.index === state.total
-  })
-  const forward = E('button', {
-    textContent: '▶',
-    onclick: () => goForward(),
-    disabled: state.index === state.total
-  })
-  const end = E('button', {
-    textContent: '▶▶|',
-    onclick: () => goEnd(),
-    disabled: state.index === state.total
-  })
-  return [start, back, moveBefore, addBefore,
-    image, remove, counter, editInPlace, editHTML,
-    addAfter, moveAfter, forward, end]
-}
+const createDiapoBar = () =>
+  append(
+    E('nav', {
+      className: 'bar-diapo'
+    }),
+    E('h2', {
+      textContent: 'Diapo'
+    }),
+    E('button', {
+      textContent: 'Move before',
+      onclick: () => moveDiapo('before'),
+      disabled: state.index === 1
+    }),
+    E('button', {
+      textContent: 'Delete',
+      onclick: () => {
+        if (confirm('Are you sure you want to delete this diapo?')) deleteDiapo()
+      }
+    }),
+    E('button', {
+      textContent: 'Add image',
+      onclick: () => {
+        displayImageInput()
+      }
+    }),
+    E('button', {
+      textContent: 'Edit in place',
+      onclick: () => {
+        getDiapo().setAttribute('contenteditable', 'true')
+      }
+    }),
+    E('button', {
+      textContent: !state.editMode ? 'Edit as HTML' : 'Save HTML',
+      onclick: () => {
+        !state.editMode ? editDiapo() : saveDiapo()
+      }
+    }),
+    E('button', {
+      textContent: 'Move after',
+      onclick: () => moveDiapo('after'),
+      disabled: state.index === state.total
+    })
+  )
+
+const createDiaporamaBar = () =>
+  append(
+    E('nav', {
+      className: 'bar-diaporama'
+    }),
+    E('h2', {
+      textContent: 'Diaporama'
+    }),
+    E('button', {
+      textContent: '|◀◀',
+      onclick: () => goStart(),
+      disabled: state.index === 1
+    }),
+    E('button', {
+      textContent: '◀',
+      onclick: () => goBack(),
+      disabled: state.index === 1
+    }),
+    E('button', {
+      textContent: 'Create diapo before',
+      onclick: () => injectDiapo('before')
+    }),
+    E('div', {
+      className: 'counter',
+      textContent: `${state.index} / ${state.total}`
+    }),
+    E('button', {
+      textContent: 'Create diapo after',
+      onclick: () => injectDiapo('after')
+    }),
+    E('button', {
+      textContent: '▶',
+      onclick: () => goForward(),
+      disabled: state.index === state.total
+    }),
+    E('button', {
+      textContent: '▶▶|',
+      onclick: () => goEnd(),
+      disabled: state.index === state.total
+    })
+  )
 
 const refreshUI = () => {
   if (ui) ui.remove() // re-rendering UI should be lightweight
   ui = E('nav', { className: 'ui' })
 
-  append(body, append(ui, ...createButtons()))
+  append(body, append(ui, createDiapoBar(), createDiaporamaBar()))
 }
 
 // navigation
