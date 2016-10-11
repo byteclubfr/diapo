@@ -198,9 +198,9 @@ const editDiapo = () => {
     className: 'edit',
     innerHTML: getDiapo().innerHTML
   })
-  document.body.appendChild(input)
+  append(document.body, input)
   state.editMode = true
-  refreshUI(state)
+  refreshUI()
 }
 
 const saveDiapo = () => {
@@ -208,7 +208,7 @@ const saveDiapo = () => {
   getDiapo().innerHTML = input.value
   input.remove()
   state.editMode = false
-  refreshUI(state)
+  refreshUI()
 }
 
 // ui
@@ -227,7 +227,7 @@ const displayImageInput = () => {
       if (!file.type.match(/image.*/)) return
 
       const img = E("img")
-      getDiapo().appendChild(img)
+      append(getDiapo(), img)
 
       const reader = new FileReader()
       reader.onload = (e) => img.src = e.target.result
@@ -236,11 +236,10 @@ const displayImageInput = () => {
       form.remove()
     }
   })
-  form.appendChild(input)
-  document.body.appendChild(form)
+  append(document.body, append(form, input))
 }
 
-const createButtons = (state) => {
+const createButtons = () => {
   const start = E('button', {
     textContent: '|◀◀',
     onclick: () => goStart(),
@@ -312,12 +311,11 @@ const createButtons = (state) => {
     addAfter, moveAfter, forward, end]
 }
 
-const refreshUI = (state) => {
+const refreshUI = () => {
   if (ui) ui.remove() // re-rendering UI should be lightweight
   ui = E('nav', { className: 'ui' })
 
-  createButtons(state).forEach(b => ui.appendChild(b))
-  return document.body.appendChild(ui)
+  append(document.body, append(ui, ...createButtons()))
 }
 
 // navigation
@@ -334,7 +332,7 @@ const goTo = (index) => {
     current.removeAttribute('contenteditable')
   }
   if (next) next.setAttribute('aria-selected', 'true')
-  refreshUI(state)
+  refreshUI()
 }
 
 const goBack = () => {
@@ -406,7 +404,7 @@ const init = () => {
   state.dummyHTML = $('template').innerHTML
 
   onResize()
-  refreshUI(state)
+  refreshUI()
 
   window.onkeydown = onKeyDown
   window.ondblclick = onDoubleClick
@@ -423,13 +421,18 @@ window.onload = init
 // global helpers
 
 function E (tag, props) {
-  var elt = document.createElement(tag)
+  const elt = document.createElement(tag)
   if (props) {
-    for (var p in props) {
+    for (let p in props) {
       elt[p] = props[p]
     }
   }
   return elt
+}
+
+function append (parent, ...children) {
+  children.forEach(c => parent.appendChild(c))
+  return parent
 }
 
 var $ = (HTMLElement.prototype.$ = function(q) {
