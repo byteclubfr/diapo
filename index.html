@@ -153,6 +153,7 @@ const state = {
   total: 0,
   editMode: false
 }
+let ui // created at runtime
 
 // CRUD
 
@@ -312,9 +313,7 @@ const createButtons = (state) => {
 }
 
 const refreshUI = (state) => {
-  let ui = $('nav.ui')
-  if (ui) ui.remove()
-
+  if (ui) ui.remove() // re-rendering UI should be lightweight
   ui = E('nav', { className: 'ui' })
 
   createButtons(state).forEach(b => ui.appendChild(b))
