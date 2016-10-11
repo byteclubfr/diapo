@@ -149,7 +149,19 @@ nav h2 {
   width: 100%;
 }
 nav button {
+  background: #eee;
+  border: 0;
+  cursor: pointer;
   flex: 1;
+  font-size: 12px;
+  margin: 0 2px;
+}
+nav button:hover {
+  background: #fff;
+}
+nav button[disabled] {
+  background: #ddd;
+  cursor: default;
 }
 nav .counter {
   align-self: center;
