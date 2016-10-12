@@ -138,7 +138,16 @@ form.file {
   top: 40%;
   left: 30%;
   padding: 2em;
-  background: #ccc;
+  background: rgba(255, 255, 255, 0.5)
+}
+
+form .cross {
+  background: none;
+  border: 0;
+  cursor: pointer;
+  position: absolute;
+  right: 0;
+  top: 0;
 }
 
 nav {
@@ -333,10 +342,19 @@ const resetDiapo = () => {
 
 // ui
 
-const displayImageInput = () => {
-  const form = E('form', {
+const toggleImageInput = () => {
+  let form = $('form.file')
+  if (form) return form.remove()
+
+  form = E('form', {
     className: 'file',
     onsubmit: (e) => e.prevenDefault()
+  })
+
+  const cross = E('button', {
+    className: 'cross',
+    textContent: '×',
+    onclick: toggleImageInput
   })
 
   const input = E('input', {
@@ -356,7 +374,7 @@ const displayImageInput = () => {
       form.remove()
     }
   })
-  append(body, append(form, input))
+  append(body, append(form, cross, input))
 }
 
 const createDiapoBar = () =>
@@ -392,7 +410,7 @@ const createDiapoBar = () =>
     E('button', {
       textContent: 'Add image',
       onclick: () => {
-        displayImageInput()
+        toggleImageInput()
       }
     }),
     append(
