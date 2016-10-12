@@ -142,8 +142,12 @@ nav.collapsed {
   justify-content: center;
 }
 nav nav {
+  justify-content: center;
   position: relative;
   width: 50%;
+}
+nav.edit {
+  width: 100%;
 }
 nav h2 {
   font-size: 12px;
@@ -160,6 +164,7 @@ nav button {
   flex: 1;
   font-size: 12px;
   margin: 0 2px;
+  min-height: 3em;
 }
 nav button:hover {
   background: rgba(255, 255, 255, .8);
@@ -171,7 +176,10 @@ nav button[disabled] {
 nav button.toggle {
   background: none;
   flex: 0;
-  min-height: 2em;
+}
+nav button.save {
+  background: #cfc;
+  font-weight: bold;
 }
 nav .counter {
   align-self: center;
@@ -194,6 +202,7 @@ const state = {
   ui: true
 }
 let ui // created at runtime
+let backup
 
 // CRUD
 
@@ -233,15 +242,22 @@ const moveDiapo = (position) => {
 }
 
 const editDiapoContent = () => {
+  backup = getDiapo().innerHTML
   getDiapo().setAttribute('contenteditable', 'true')
   state.mode = MODE.CONTENT
   refreshUI()
 }
 
 const editDiapoHTML = () => {
-  const input = E('textarea', {
+  let input
+  backup = getDiapo().innerHTML
+  const update = () => {
+    getDiapo().innerHTML = input.value
+  }
+  input = E('textarea', {
     className: 'edit',
-    innerHTML: getDiapo().innerHTML
+    innerHTML: getDiapo().innerHTML,
+    onkeyup: update
   })
   append(body, input)
   state.mode = MODE.HTML
@@ -253,9 +269,7 @@ const saveDiapoContent = () => {
 }
 
 const saveDiapoHTML = () => {
-  const input = $('textarea.edit')
-  getDiapo().innerHTML = input.value
-  input.remove()
+  $('textarea.edit').remove()
 }
 
 const saveDiapo = () => {
@@ -266,6 +280,11 @@ const saveDiapo = () => {
   }
   state.mode = MODE.NORMAL
   refreshUI()
+}
+
+const resetDiapo = () => {
+  getDiapo().innerHTML = backup
+  saveDiapo()
 }
 
 // ui
@@ -382,9 +401,26 @@ const createDiaporamaBar = () =>
     })
   )
 
+const createEditBar = () =>
+  append(
+    E('nav', {
+      className: 'edit'
+    }),
+    E('button', {
+      textContent: 'Reset',
+      onclick: resetDiapo
+    }),
+    E('button', {
+      className: 'save',
+      textContent: 'Save',
+      onclick: saveDiapo
+    })
+  )
+
 const refreshUI = () => {
   if (ui) ui.remove() // re-rendering UI should be lightweight
     ui = E('nav', { className: `ui ${!state.ui && 'collapsed'}` })
+
   const toggle = E('button', {
     className: 'toggle',
     textContent: state.ui ? '▼' : '▲',
@@ -394,9 +430,15 @@ const refreshUI = () => {
       refreshUI()
     }
   })
-  const children = state.ui
-    ? [createDiapoBar(), toggle, createDiaporamaBar()]
-    : [toggle]
+
+  let children
+  if (state.mode === MODE.NORMAL) {
+    children = state.ui
+      ? [createDiapoBar(), toggle, createDiaporamaBar()]
+      : [toggle]
+  } else {
+    children = [createEditBar()]
+  }
 
   append(body, append(ui, ...children))
 }
@@ -407,10 +449,7 @@ const goTo = (index) => {
   state.index = index
   const current = getDiapo()
   const next = $(`diapo:nth-of-type(${ index })`)
-  if (current) {
-    saveDiapo()
-    current.removeAttribute('aria-selected')
-  }
+  if (current) current.removeAttribute('aria-selected')
   if (next) next.setAttribute('aria-selected', 'true')
   refreshUI()
 }
