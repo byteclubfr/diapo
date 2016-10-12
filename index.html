@@ -3,22 +3,22 @@
 
 <title>Diapo</title>
 
+<diapo class="flex center-x center-y">
+  <h1>Welcome to diapo!</h1>
+</diapo>
+
 <diapo>
-  <h1>First diapo</h1>
+  <h1>Second diapo</h1>
   <p>A small text content on 1 line.</p>
 </diapo>
 
 <diapo style="background: #3f99f4; color: #fff;">
-  <h1>Second diapo</h1>
-  <p>A list of things:</p>
+  <h1>Third diapo</h1>
+  <p>A list of things on a colored background:</p>
   <ul>
     <li>first thing</li>
     <li>second thing</li>
   </ul>
-</diapo>
-
-<diapo class="center-x center-y">
-  <h1>Third diapo centered title</h1>
 </diapo>
 
 <diapo>
@@ -56,6 +56,11 @@
   </code></pre>
 </diapo>
 
+<diapo class="flex col center-x center-y" style="background: white;">
+  <h1>Make your own:</h1>
+  <h2><a href="https://byteclubfr.github.io/diapo/">https://byteclubfr.github.io/diapo/</a></h2>
+</diapo>
+
 <template>
   <h1>New diapo title</h1>
   <p>A dummy paragraph</p>
@@ -88,6 +93,14 @@ body {
 body.loaded {
   display: block;
 }
+a {
+  color: #333;
+}
+table td, table th {
+  background: rgba(255, 255, 255, 0.2);
+  text-align: center;
+  padding: .5em;
+}
 diapo {
   background: #ddd;
   width: 100%; height: 100%;
@@ -101,14 +114,11 @@ diapo[aria-selected] { left: 0 } /* Now */
 diapo[aria-selected] ~ diapo { left: +100% } /* After */
 diapo[contenteditable] { background: #ccc; }
 
-diapo.center-x {
-  display: flex;
-  justify-content: center;
-}
-diapo.center-y {
-  display: flex;
-  align-items: center;
-}
+diapo.flex { display: flex; }
+diapo.center-x { justify-content: center; }
+diapo.center-y { align-items: center; }
+diapo.col { flex-direction: column; }
+diapo.row { flex-direction: row; }
 
 diapo img {
   max-width: 100%;
