@@ -435,16 +435,14 @@ const onKeyDown = (e) => {
   if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return
   if (state.mode !== MODE.NORMAL) return
 
-  // left, up, page up
-  if ([37, 38, 33].includes(keyCode)) {
-    e.preventDefault()
-    goBack()
+  switch (keyCode) {
+    case 33: goStart(); break; // page up
+    case 34: goEnd(); break; // page down
+    case 37: case 38: goBack(); break; // left, up
+    case 39: case 40: goForward(); break; // right, down
+    default: return
   }
-  // right, down, page down
-  if ([39, 40, 34].includes(keyCode)) {
-    e.preventDefault()
-    goForward()
-  }
+  e.preventDefault()
 }
 
 const onHashChange = () => {
