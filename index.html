@@ -235,8 +235,8 @@ let backup
 // current
 const getDiapo = () => $('diapo[aria-selected]')
 
-const injectDiapo = (position) => {
-  const diapo = E('diapo', { innerHTML: state.dummyHTML })
+const injectDiapo = (position, template = state.dummyHTML, style = {}) => {
+  const diapo = E('diapo', { innerHTML: template, style })
   const current = getDiapo()
   if (position === 'before') {
     body.insertBefore(diapo, current)
@@ -247,6 +247,10 @@ const injectDiapo = (position) => {
   state.sub = null
   state.total++
   setHash(position === 'before' ? state.index - 1 : state.index + 1)
+}
+
+const duplicateDiapo = () => {
+  injectDiapo('after', getDiapo().innerHTML, getDiapo().style)
 }
 
 const deleteDiapo = () => {
@@ -427,18 +431,22 @@ const createDiaporamaBar = () =>
     append(
       E('nav', { className: `sub ${state.sub !== 'create' && 'collapsed'}` }),
       E('button', {
-        textContent: `${state.sub === 'create' ? '▼' : '▲'} New diapo`,
+        textContent: `${state.sub === 'create' ? '▼' : '▲'} Create diapo`,
         onclick: () => {
           state.sub = !state.sub ? 'create' : null
           refreshUI()
         }
       }),
       E('button', {
-        textContent: 'After',
+        textContent: 'Duplicate',
+        onclick: () => duplicateDiapo()
+      }),
+      E('button', {
+        textContent: 'New after',
         onclick: () => injectDiapo('after')
       }),
       E('button', {
-        textContent: 'Before',
+        textContent: 'New before',
         onclick: () => injectDiapo('before')
       })
     ),
@@ -598,7 +606,13 @@ function E (tag, props) {
   const elt = document.createElement(tag)
   if (props) {
     for (let p in props) {
-      elt[p] = props[p]
+      if ('style' === p) {
+        for (let s in props[p]) {
+          elt.style[s] = props[p][s]
+        }
+      } else {
+        elt[p] = props[p]
+      }
     }
   }
   return elt
