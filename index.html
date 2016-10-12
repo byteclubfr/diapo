@@ -131,8 +131,9 @@ form.file {
 }
 
 nav {
-  justify-content: space-between;
+  align-items: flex-end;
   display: flex;
+  justify-content: space-between;
 }
 nav.ui {
   bottom: 0; width: 100%;
@@ -141,7 +142,7 @@ nav.ui {
 nav.collapsed {
   justify-content: center;
 }
-nav nav {
+nav.bar-diapo, nav.bar-diaporama {
   justify-content: center;
   position: relative;
   width: 50%;
@@ -149,12 +150,28 @@ nav nav {
 nav.edit {
   width: 100%;
 }
+nav.sub {
+  align-items: stretch;
+  flex-direction: column-reverse;
+  z-index: 1;
+}
+nav.sub button:first-child {
+  opacity: .2;
+}
+nav.sub.collapsed button {
+  display: none;
+}
+nav.sub.collapsed button:first-child {
+  content: 'yolo';
+  display: inline;
+  opacity: 1;
+}
 nav h2 {
+  bottom: 3.5em;
   font-size: 12px;
   margin: 0;
   position: absolute;
   text-align: center;
-  top: -1.5em;
   width: 100%;
 }
 nav button {
@@ -182,7 +199,6 @@ nav button.save {
   font-weight: bold;
 }
 nav .counter {
-  align-self: center;
   padding: .5em;
   white-space: nowrap;
 }
@@ -199,7 +215,8 @@ const state = {
   index: 0,
   total: 0,
   mode: MODE.NORMAL,
-  ui: true
+  ui: true, // visible ?,
+  sub: null // sub navs
 }
 let ui // created at runtime
 let backup
@@ -218,6 +235,7 @@ const injectDiapo = (position) => {
   } else {
     body.insertBefore(diapo, current.nextSibling)
   }
+  state.sub = null
   state.total++
   setHash(position === 'before' ? state.index - 1 : state.index + 1)
 }
@@ -317,12 +335,8 @@ const displayImageInput = () => {
 
 const createDiapoBar = () =>
   append(
-    E('nav', {
-      className: 'bar-diapo'
-    }),
-    E('h2', {
-      textContent: 'Diapo'
-    }),
+    E('nav', { className: 'bar-diapo' }),
+    E('h2', { textContent: 'Diapo' }),
     E('button', {
       textContent: 'Move before',
       onclick: () => moveDiapo('before'),
@@ -361,11 +375,10 @@ const createDiapoBar = () =>
 
 const createDiaporamaBar = () =>
   append(
-    E('nav', {
-      className: 'bar-diaporama'
-    }),
+    E('nav', { className: 'bar-diaporama' }),
     E('h2', {
-      textContent: 'Diaporama'
+      textContent: 'Diaporama',
+      hidden: state.sub === 'create'
     }),
     E('button', {
       textContent: '|◀◀',
@@ -377,17 +390,27 @@ const createDiaporamaBar = () =>
       onclick: () => goBack(),
       disabled: state.index === 1
     }),
-    E('button', {
-      textContent: 'Create diapo before',
-      onclick: () => injectDiapo('before')
-    }),
+    append(
+      E('nav', { className: `sub ${state.sub !== 'create' && 'collapsed'}` }),
+      E('button', {
+        textContent: 'New diapo',
+        onclick: () => {
+          state.sub = !state.sub ? 'create' : null
+          refreshUI()
+        }
+      }),
+      E('button', {
+        textContent: 'Before',
+        onclick: () => injectDiapo('before')
+      }),
+      E('button', {
+        textContent: 'After',
+        onclick: () => injectDiapo('after')
+      })
+    ),
     E('div', {
       className: 'counter',
       textContent: `${state.index} / ${state.total}`
-    }),
-    E('button', {
-      textContent: 'Create diapo after',
-      onclick: () => injectDiapo('after')
     }),
     E('button', {
       textContent: '▶',
@@ -552,10 +575,10 @@ function append (parent, ...children) {
 }
 
 var $ = (HTMLElement.prototype.$ = function(q) {
-  return this.querySelector(q);
+  return this.querySelector(q)
 }).bind(document)
 
 var $$ = (HTMLElement.prototype.$$ = function(q) {
-  return this.querySelectorAll(q);
+  return this.querySelectorAll(q)
 }).bind(document)
 </script>
