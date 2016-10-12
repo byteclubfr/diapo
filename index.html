@@ -182,10 +182,13 @@ nav .counter {
 <script>
 (function (body) {
 
+const MODE = {
+  NORMAL: 1, CONTENT: 2, HTML: 4
+}
 const state = {
   index: 0,
   total: 0,
-  editMode: false,
+  mode: MODE.NORMAL,
   ui: true
 }
 let ui // created at runtime
@@ -227,22 +230,39 @@ const moveDiapo = (position) => {
   }
 }
 
-// display a textarea to edit raw HTML
-const editDiapo = () => {
+const editDiapoContent = () => {
+  getDiapo().setAttribute('contenteditable', 'true')
+  state.mode = MODE.CONTENT
+  refreshUI()
+}
+
+const editDiapoHTML = () => {
   const input = E('textarea', {
     className: 'edit',
     innerHTML: getDiapo().innerHTML
   })
   append(body, input)
-  state.editMode = true
+  state.mode = MODE.HTML
   refreshUI()
 }
 
-const saveDiapo = () => {
+const saveDiapoContent = () => {
+  getDiapo().removeAttribute('contenteditable')
+}
+
+const saveDiapoHTML = () => {
   const input = $('textarea.edit')
   getDiapo().innerHTML = input.value
   input.remove()
-  state.editMode = false
+}
+
+const saveDiapo = () => {
+  switch (state.mode) {
+    case MODE.NORMAL: return
+    case MODE.CONTENT: saveDiapoContent(); break
+    case MODE.HTML: saveDiapoHTML(); break
+  }
+  state.mode = MODE.NORMAL
   refreshUI()
 }
 
@@ -300,15 +320,15 @@ const createDiapoBar = () =>
       }
     }),
     E('button', {
-      textContent: 'Edit in place',
+      textContent: state.mode === MODE.CONTENT ? 'Save content' : 'Edit in place',
       onclick: () => {
-        getDiapo().setAttribute('contenteditable', 'true')
+        state.mode === MODE.CONTENT ? saveDiapo() : editDiapoContent()
       }
     }),
     E('button', {
-      textContent: !state.editMode ? 'Edit as HTML' : 'Save HTML',
+      textContent: state.mode === MODE.HTML ? 'Save HTML' : 'Edit as HTML',
       onclick: () => {
-        !state.editMode ? editDiapo() : saveDiapo()
+        state.mode === MODE.HTML ? saveDiapo() : editDiapoHTML()
       }
     }),
     E('button', {
@@ -386,11 +406,8 @@ const goTo = (index) => {
   const current = getDiapo()
   const next = $(`diapo:nth-of-type(${ index })`)
   if (current) {
-    if (state.editMode) {
-      saveDiapo()
-    }
+    saveDiapo()
     current.removeAttribute('aria-selected')
-    current.removeAttribute('contenteditable')
   }
   if (next) next.setAttribute('aria-selected', 'true')
   refreshUI()
@@ -416,7 +433,7 @@ const onKeyDown = (e) => {
   const { keyCode } = e
   // don't intercept keyboard chords
   if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return
-  if (state.editMode) return
+  if (state.mode !== MODE.NORMAL) return
 
   // left, up, page up
   if ([37, 38, 33].includes(keyCode)) {
