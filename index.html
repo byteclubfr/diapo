@@ -337,11 +337,26 @@ const createDiapoBar = () =>
   append(
     E('nav', { className: 'bar-diapo' }),
     E('h2', { textContent: 'Diapo' }),
-    E('button', {
-      textContent: 'Move before',
-      onclick: () => moveDiapo('before'),
-      disabled: state.index === 1
-    }),
+    append(
+      E('nav', { className: `sub ${state.sub !== 'move' && 'collapsed'}` }),
+      E('button', {
+        textContent: `${state.sub === 'move' ? '▼' : '▲'} Move`,
+        onclick: () => {
+          state.sub = !state.sub ? 'move' : null
+          refreshUI()
+        }
+      }),
+      E('button', {
+        textContent: 'After',
+        onclick: () => moveDiapo('after'),
+        disabled: state.index === state.total
+      }),
+      E('button', {
+        textContent: 'Before',
+        onclick: () => moveDiapo('before'),
+        disabled: state.index === 1
+      })
+    ),
     E('button', {
       textContent: 'Delete',
       onclick: () => {
@@ -365,11 +380,6 @@ const createDiapoBar = () =>
       onclick: () => {
         state.mode === MODE.HTML ? saveDiapo() : editDiapoHTML()
       }
-    }),
-    E('button', {
-      textContent: 'Move after',
-      onclick: () => moveDiapo('after'),
-      disabled: state.index === state.total
     })
   )
 
@@ -393,19 +403,19 @@ const createDiaporamaBar = () =>
     append(
       E('nav', { className: `sub ${state.sub !== 'create' && 'collapsed'}` }),
       E('button', {
-        textContent: 'New diapo',
+        textContent: `${state.sub === 'create' ? '▼' : '▲'} New diapo`,
         onclick: () => {
           state.sub = !state.sub ? 'create' : null
           refreshUI()
         }
       }),
       E('button', {
-        textContent: 'Before',
-        onclick: () => injectDiapo('before')
-      }),
-      E('button', {
         textContent: 'After',
         onclick: () => injectDiapo('after')
+      }),
+      E('button', {
+        textContent: 'Before',
+        onclick: () => injectDiapo('before')
       })
     ),
     E('div', {
