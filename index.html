@@ -78,6 +78,7 @@ html {
 }
 body {
   background: #eee;
+  color: #333;
   width: 800px; height: 600px;
   margin-left: -400px; margin-top: -300px;
   position: absolute; top: 50%; left: 50%;
@@ -148,6 +149,7 @@ nav.bar-diapo, nav.bar-diaporama {
   width: 50%;
 }
 nav.edit {
+  justify-content: center;
   width: 100%;
 }
 nav.sub {
@@ -155,16 +157,11 @@ nav.sub {
   flex-direction: column-reverse;
   z-index: 1;
 }
-nav.sub button:first-child {
-  opacity: .2;
-}
 nav.sub.collapsed button {
   display: none;
 }
 nav.sub.collapsed button:first-child {
-  content: 'yolo';
   display: inline;
-  opacity: 1;
 }
 nav h2 {
   bottom: 3.5em;
@@ -178,10 +175,11 @@ nav button {
   background: rgba(255, 255, 255, .5);
   border: 0;
   cursor: pointer;
-  flex: 1;
+  flex: 0;
   font-size: 12px;
   margin: 0 2px;
   min-height: 3em;
+  white-space: nowrap;
 }
 nav button:hover {
   background: rgba(255, 255, 255, .8);
@@ -189,6 +187,8 @@ nav button:hover {
 nav button[disabled] {
   background: none;
   cursor: default;
+  color: #333;
+  opacity: 0.2;
 }
 nav button.toggle {
   background: none;
@@ -197,6 +197,15 @@ nav button.toggle {
 nav button.save {
   background: #cfc;
   font-weight: bold;
+}
+nav button.edit {
+  min-width: 66px;
+}
+nav button.go {
+  min-width: 3em;
+}
+nav.edit button {
+  min-width: 30%;
 }
 nav .counter {
   padding: .5em;
@@ -250,6 +259,7 @@ const deleteDiapo = () => {
 const moveDiapo = (position) => {
   const diapos = $$('diapo')
   const current = diapos[state.index - 1]
+  state.sub = null
   if (position === 'before') {
     current.parentNode.insertBefore(current, diapos[state.index - 2])
     setHash(state.index - 1)
@@ -263,6 +273,7 @@ const editDiapoContent = () => {
   backup = getDiapo().innerHTML
   getDiapo().setAttribute('contenteditable', 'true')
   state.mode = MODE.CONTENT
+  state.sub = null
   refreshUI()
 }
 
@@ -279,6 +290,7 @@ const editDiapoHTML = () => {
   })
   append(body, input)
   state.mode = MODE.HTML
+  state.sub = null
   refreshUI()
 }
 
@@ -369,18 +381,29 @@ const createDiapoBar = () =>
         displayImageInput()
       }
     }),
-    E('button', {
-      textContent: state.mode === MODE.CONTENT ? 'Save content' : 'Edit in place',
-      onclick: () => {
-        state.mode === MODE.CONTENT ? saveDiapo() : editDiapoContent()
-      }
-    }),
-    E('button', {
-      textContent: state.mode === MODE.HTML ? 'Save HTML' : 'Edit as HTML',
-      onclick: () => {
-        state.mode === MODE.HTML ? saveDiapo() : editDiapoHTML()
-      }
-    })
+    append(
+      E('nav', { className: `sub ${state.sub !== 'edit' && 'collapsed'}` }),
+      E('button', {
+        className: 'edit',
+        textContent: `${state.sub === 'edit' ? '▼' : '▲'} Edit`,
+        onclick: () => {
+          state.sub = !state.sub ? 'edit' : null
+          refreshUI()
+        }
+      }),
+      E('button', {
+        textContent: state.mode === MODE.CONTENT ? 'Save content' : 'In place',
+        onclick: () => {
+          state.mode === MODE.CONTENT ? saveDiapo() : editDiapoContent()
+        }
+      }),
+      E('button', {
+        textContent: state.mode === MODE.HTML ? 'Save HTML' : 'As HTML',
+        onclick: () => {
+          state.mode === MODE.HTML ? saveDiapo() : editDiapoHTML()
+        }
+      })
+    )
   )
 
 const createDiaporamaBar = () =>
@@ -396,6 +419,7 @@ const createDiaporamaBar = () =>
       disabled: state.index === 1
     }),
     E('button', {
+      className: 'go',
       textContent: '◀',
       onclick: () => goBack(),
       disabled: state.index === 1
@@ -423,6 +447,7 @@ const createDiaporamaBar = () =>
       textContent: `${state.index} / ${state.total}`
     }),
     E('button', {
+      className: 'go',
       textContent: '▶',
       onclick: () => goForward(),
       disabled: state.index === state.total
