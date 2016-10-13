@@ -62,10 +62,22 @@
 </diapo>
 
 <template>
-  <h1>New diapo title</h1>
-  <p>A dummy paragraph</p>
+  <h1>New list</h1>
+  <ul>
+    <li>Item 1</li>
+    <li>Item 2</li>
+    <li>Item 3</li>
+    <li>Item 4</li>
+  </ul>
 </template>
 
+<template class="flex center-x center-y">
+  <h1>New diapo with centered title</h1>
+</template>
+
+<template class="flex center-x" style="background: hotpink;">
+  <h1>With bright style</h1>
+</template>
 
 <!-- diapo engine: here be dragons -->
 
@@ -133,21 +145,70 @@ textarea.edit {
   background: rgba(255, 255, 255, 0.9)
 }
 
-form.file {
+.veil {
+  background: rgba(255, 255, 255, 0.9);
+  height: 100%;
   position: absolute;
-  top: 40%;
-  left: 30%;
+  width: 100%;
+  z-index: 2;
+}
+
+form {
+  position: absolute;
+  z-index: 3;
+}
+
+form.file {
+  background: rgba(255, 255, 255, 0.9);
   padding: 2em;
-  background: rgba(255, 255, 255, 0.5)
+  left: 30%;
+  top: 40%;
+}
+
+form.templates {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+form .template {
+  cursor: pointer;
+  border-radius: 30px;
+  height: 600px;
+  left: 0;
+  margin-bottom: -450px;
+  margin-right: -600px;
+  position: relative;
+  transform-origin: 0 0;
+  transform: scale(.25);
+  width: 800px;
+}
+
+form .template:hover::before {
+  background: rgba(0, 0, 0, 0.5);
+  border-color: #fff;
+  border-radius: 30px;
+  border-style: solid;
+  border-width: 150px 75px 150px 75px;
+  box-sizing: border-box;
+  content: '';
+  display: block;
+  height: 100%;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 100%;
 }
 
 form .cross {
   background: none;
   border: 0;
   cursor: pointer;
+  font-size: 2rem;
   position: absolute;
   right: 0;
   top: 0;
+  z-index: 1;
 }
 
 nav {
@@ -254,8 +315,7 @@ let backup
 // current
 const getDiapo = () => $('diapo[aria-selected]')
 
-const injectDiapo = (position, template = state.dummyHTML, style = {}) => {
-  const diapo = E('diapo', { innerHTML: template, style })
+const injectDiapo = (position, diapo) => {
   const current = getDiapo()
   if (position === 'before') {
     body.insertBefore(diapo, current)
@@ -263,13 +323,9 @@ const injectDiapo = (position, template = state.dummyHTML, style = {}) => {
   } else {
     body.insertBefore(diapo, current.nextSibling)
   }
-  state.sub = null
   state.total++
+  toggleTemplates()
   setHash(position === 'before' ? state.index - 1 : state.index + 1)
-}
-
-const duplicateDiapo = () => {
-  injectDiapo('after', getDiapo().innerHTML, getDiapo().style)
 }
 
 const deleteDiapo = () => {
@@ -348,7 +404,7 @@ const toggleImageInput = () => {
 
   form = E('form', {
     className: 'file',
-    onsubmit: (e) => e.prevenDefault()
+    onsubmit: (e) => e.preventDefault()
   })
 
   const cross = E('button', {
@@ -375,6 +431,42 @@ const toggleImageInput = () => {
     }
   })
   append(body, append(form, cross, input))
+}
+
+const toggleVeil = () => {
+  let veil = $('.veil')
+  if (veil) return veil.remove()
+
+  veil = E('div', { className: 'veil' })
+  append(body, veil)
+}
+
+const toggleTemplates = () => {
+  toggleVeil()
+  let form = $('form.templates')
+  if (form) return form.remove()
+
+  form = E('form', {
+    className: 'templates',
+    onsubmit: (e) => e.preventDefault()
+  })
+
+  const cross = E('button', {
+    className: 'cross',
+    textContent: '×',
+    onclick: toggleTemplates
+  })
+
+  let templates = [getDiapo(), ...$$('template')].map(t => {
+    return E('diapo', {
+      className: `template ${t.className}`,
+      innerHTML: t.innerHTML,
+      style: t.style,
+      onclick: function () { this.onclick = null; injectDiapo('after', this); }
+    })
+  })
+
+  append(body, append(form, cross, ...templates))
 }
 
 const createDiapoBar = () =>
@@ -441,10 +533,7 @@ const createDiapoBar = () =>
 const createDiaporamaBar = () =>
   append(
     E('nav', { className: 'bar-diaporama' }),
-    E('h2', {
-      textContent: 'Diaporama',
-      hidden: state.sub === 'create'
-    }),
+    E('h2', { textContent: 'Diaporama' }),
     E('button', {
       textContent: '|◀◀',
       onclick: () => goStart(),
@@ -456,28 +545,10 @@ const createDiaporamaBar = () =>
       onclick: () => goBack(),
       disabled: state.index === 1
     }),
-    append(
-      E('nav', { className: `sub ${state.sub !== 'create' && 'collapsed'}` }),
-      E('button', {
-        textContent: `${state.sub === 'create' ? '▼' : '▲'} Create diapo`,
-        onclick: () => {
-          state.sub = !state.sub ? 'create' : null
-          refreshUI()
-        }
-      }),
-      E('button', {
-        textContent: 'Duplicate',
-        onclick: () => duplicateDiapo()
-      }),
-      E('button', {
-        textContent: 'New after',
-        onclick: () => injectDiapo('after')
-      }),
-      E('button', {
-        textContent: 'New before',
-        onclick: () => injectDiapo('before')
-      })
-    ),
+    E('button', {
+      textContent: 'Create diapo',
+      onclick: toggleTemplates
+    }),
     E('div', {
       className: 'counter',
       textContent: `${state.index} / ${state.total}`
@@ -611,7 +682,6 @@ const init = () => {
   onHashChange()
   body.className = 'loaded'
   state.total = $$('diapo').length
-  state.dummyHTML = $('template').innerHTML
 
   onResize()
   refreshUI()
