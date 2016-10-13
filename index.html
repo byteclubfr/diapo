@@ -584,7 +584,7 @@ const createEditBar = () =>
 
 const refreshUI = () => {
   if (ui) ui.remove() // re-rendering UI should be lightweight
-    ui = E('nav', { className: `ui ${!state.ui && 'collapsed'}` })
+  ui = E('nav', { className: `ui ${!state.ui && 'collapsed'}` })
 
   const toggle = E('button', {
     className: 'toggle',
@@ -679,6 +679,7 @@ const onResize = () => {
 // let's roll
 
 const init = () => {
+  ui = $('nav.ui') // delete saved one
   onHashChange()
   body.className = 'loaded'
   state.total = $$('diapo').length
